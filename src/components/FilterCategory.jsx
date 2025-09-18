@@ -1,15 +1,14 @@
-import { useState } from "react";
-
 function FilterCategory(props) {
-  const [selectedCategory, setSelectedCategory] = useState("");
-
   return (
     <form>
       <label>Filtrer par catégorie :</label>
       <select
-        value={selectedCategory}
-        onChange={(event) => setSelectedCategory(event.target.value)}
+        value={props.selected}
+        onChange={(event) => props.onChange(event.target.value)}
       >
+        {/* option null ajoutée pour enlever le filtre: */}
+        <option value="">Toutes les catégories</option>
+        {/* Liste des catégories: */}
         {props.categories.map((category, index) => (
           <option key={index} value={category}>
             {category}

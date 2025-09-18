@@ -15,6 +15,9 @@ function App() {
   ]);
   const [taskList, setTaskList] = useState([]);
 
+  // "" = toutes catégorys
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("");
+
   function addCategory(newCategory) {
     setCategoryList((prev) => [...prev, newCategory]);
   }
@@ -37,12 +40,21 @@ function App() {
     setTaskList((prev) => prev.toSpliced(index, 1));
   }
 
+  // Filtre des taches selon catégorie si une catégorie est séléctionnée;
+  const filteredTasks = selectedCategoryFilter
+    ? taskList.filter((t) => t.category === selectedCategoryFilter)
+    : taskList;
+
   return (
     <>
       <Header title="Ma To-Do List par Catégories" />
 
       <main>
-        <FilterCategory categories={categoryList} />
+        <FilterCategory
+          categories={categoryList}
+          selected={selectedCategoryFilter}
+          onChange={setSelectedCategoryFilter}
+        />
 
         <div className="separator"></div>
 
@@ -50,7 +62,7 @@ function App() {
         <TaskForm categories={categoryList} addTask={addTask} />
 
         <TaskList
-          tasks={taskList}
+          tasks={filteredTasks}
           onDeleteTask={deleteTask}
           toggleTaskStatus={toggleTaskStatus}
         />

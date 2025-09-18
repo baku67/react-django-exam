@@ -35,11 +35,19 @@ form {
 ul {
   list-style-type: none;
   display: inline-flex;
+  flex-direction: column;
+  gap: 7px;
   justify-content: center;
   align-items: center;
   padding-inline-start: 0;
 
+  flex-direction: column;
+  gap: 7px;
+  max-height: 40vh;
+  overflow-y: scroll;
+
   li {
+    box-sizing: border-box;
     display: inline-flex;
     align-items: center;
     justify-content: space-around;
