@@ -4,6 +4,7 @@ import CategoryForm from "./components/CategoryForm";
 import { useState } from "react";
 import TaskList from "./components/TaskList";
 import TaskForm from "./components/TaskForm";
+import FilterCategory from "./components/FilterCategory";
 
 function App() {
   const [categoryList, setCategoryList] = useState([
@@ -21,15 +22,38 @@ function App() {
     setTaskList((prev) => [...prev, newTask]);
   }
 
+  function toggleTaskStatus(index) {
+    setTaskList((prevList) => {
+      const newList = prevList.slice();
+      newList[index] = {
+        ...newList[index],
+        finished: !newList[index].finished,
+      };
+      return newList;
+    });
+  }
+
+  function deleteTask(index) {
+    setTaskList((prev) => prev.toSpliced(index, 1));
+  }
+
   return (
     <>
       <Header title="Ma To-Do List par Catégories" />
 
       <main>
+        <FilterCategory categories={categoryList} />
+
+        <div className="separator"></div>
+
         <CategoryForm addCategory={addCategory} />
         <TaskForm categories={categoryList} addTask={addTask} />
 
-        <TaskList tasks={taskList} />
+        <TaskList
+          tasks={taskList}
+          onDeleteTask={deleteTask}
+          toggleTaskStatus={toggleTaskStatus}
+        />
       </main>
     </>
   );
