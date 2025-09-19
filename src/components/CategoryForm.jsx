@@ -8,10 +8,8 @@ function CategoryForm(props) {
 
   function handleSubmitForm(event) {
     event.preventDefault();
-    props.addCategory(inputValue);
-    setInputValue("");
 
-    // Validation input (au moins 5 char)
+    // Validation input (au moins 3 char)
     if (inputValue.trim().length < 3) {
       setErrorMsg("Le nom de la categorie doit faire au moins 3 caractères.");
     } else {

@@ -36,8 +36,8 @@ function App() {
     });
   }
 
-  function deleteTask(index) {
-    setTaskList((prev) => prev.toSpliced(index, 1));
+  function deleteTask(indexToDelete) {
+    setTaskList((prev) => prev.filter((value, i) => i !== indexToDelete));
   }
 
   // Filtre des taches selon catégorie si une catégorie est séléctionnée;
