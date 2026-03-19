@@ -42,7 +42,7 @@ function TaskList(props) {
                   onClick={(event) => handleDeleteTask(event, index)}
                 />
               </li>
-              {task.finished && <div class="task-finished-line"></div>}
+              {task.finished && <div className="task-finished-line"></div>}
             </React.Fragment>
           ))}
         {props.tasks.length === 0 && <p>Aucune tâche à afficher</p>}
