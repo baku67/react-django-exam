@@ -1,49 +1,87 @@
 import "./App.css";
 import Header from "./components/Header";
 import CategoryForm from "./components/CategoryForm";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TaskList from "./components/TaskList";
 import TaskForm from "./components/TaskForm";
 import FilterCategory from "./components/FilterCategory";
+import Information from "./components/Information";
+import {
+  fetchCategories,
+  fetchTasks,
+  createCategory,
+  createTask,
+  updateTask,
+  deleteTask,
+} from "../api/api";
 
 function App() {
-  const [categoryList, setCategoryList] = useState([
-    "Perso",
-    "Travail",
-    "Maison",
-    "Loisirs",
-  ]);
-  const [taskList, setTaskList] = useState([]);
-
-  // "" = toutes catégorys
+  const [categories, setCategories] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("");
 
-  function addCategory(newCategory) {
-    setCategoryList((prev) => [...prev, newCategory]);
-  }
-  function addTask(newTask) {
-    setTaskList((prev) => [...prev, newTask]);
+  const [loadingInitialData, setLoadingInitialData] = useState(true);
+  const [globalError, setGlobalError] = useState("");
+
+  async function loadInitialData(categoryId = "") {
+    try {
+      setGlobalError("");
+      const [categoriesData, tasksData] = await Promise.all([
+        fetchCategories(),
+        fetchTasks(categoryId),
+      ]);
+      setCategories(categoriesData);
+      setTasks(tasksData);
+      // eslint-disable-next-line no-unused-vars
+    } catch (error) {
+      setGlobalError(
+        "Impossible de charger les données depuis l'API (" +
+          error.message +
+          ")",
+      );
+    } finally {
+      setLoadingInitialData(false);
+    }
   }
 
-  function toggleTaskStatus(index) {
-    setTaskList((prevList) => {
-      const newList = prevList.slice();
-      newList[index] = {
-        ...newList[index],
-        finished: !newList[index].finished,
-      };
-      return newList;
+  useEffect(() => {
+    loadInitialData(selectedCategoryFilter);
+  }, [selectedCategoryFilter]);
+
+  async function handleAddCategory(formData) {
+    const newCategory = await createCategory(formData);
+    setCategories((prev) =>
+      [...prev, newCategory].sort((a, b) => a.name.localeCompare(b.name)),
+    );
+    return newCategory;
+  }
+
+  async function handleAddTask(formData) {
+    const newTask = await createTask(formData);
+
+    const shouldAppear =
+      !selectedCategoryFilter ||
+      Number(selectedCategoryFilter) === newTask.category_id;
+
+    if (shouldAppear) {
+      setTasks((prev) => [newTask, ...prev]);
+    }
+  }
+
+  async function handleToggleTask(task) {
+    const updatedTask = await updateTask(task.id, {
+      is_completed: !task.is_completed,
     });
+
+    setTasks((prev) =>
+      prev.map((item) => (item.id === task.id ? updatedTask : item)),
+    );
   }
 
-  function deleteTask(indexToDelete) {
-    setTaskList((prev) => prev.filter((value, i) => i !== indexToDelete));
+  async function handleDeleteTask(taskId) {
+    await deleteTask(taskId);
+    setTasks((prev) => prev.filter((task) => task.id !== taskId));
   }
-
-  // Filtre des taches selon catégorie si une catégorie est séléctionnée;
-  const filteredTasks = selectedCategoryFilter
-    ? taskList.filter((t) => t.category === selectedCategoryFilter)
-    : taskList;
 
   return (
     <>
@@ -51,21 +89,28 @@ function App() {
 
       <main>
         <FilterCategory
-          categories={categoryList}
+          categories={categories}
           selected={selectedCategoryFilter}
           onChange={setSelectedCategoryFilter}
         />
 
         <div className="separator"></div>
 
-        <CategoryForm addCategory={addCategory} />
-        <TaskForm categories={categoryList} addTask={addTask} />
+        <CategoryForm onAddCategory={handleAddCategory} />
+        <TaskForm categories={categories} onAddTask={handleAddTask} />
 
-        <TaskList
-          tasks={filteredTasks}
-          onDeleteTask={deleteTask}
-          toggleTaskStatus={toggleTaskStatus}
-        />
+        {loadingInitialData && (
+          <Information message="Chargement des données..." />
+        )}
+        {globalError && <Information message={globalError} type="warn" />}
+
+        {!loadingInitialData && !globalError && (
+          <TaskList
+            tasks={tasks}
+            onDeleteTask={handleDeleteTask}
+            onToggleTask={handleToggleTask}
+          />
+        )}
       </main>
     </>
   );

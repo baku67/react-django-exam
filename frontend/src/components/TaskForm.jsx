@@ -1,27 +1,56 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "./Button";
 import Information from "./Information";
 
-function TaskForm(props) {
-  const [taskName, setTaskName] = useState("");
-  const [taskCategory, setTaskCategory] = useState(props.categories[0]); // par défaut "Perso"
+function TaskForm({ categories, onAddTask }) {
+  const [taskDescription, setTaskDescription] = useState("");
+  const [taskCategoryId, setTaskCategoryId] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmitForm(event) {
+  useEffect(() => {
+    if (categories.length > 0 && !taskCategoryId) {
+      setTaskCategoryId(String(categories[0].id));
+    }
+  }, [categories, taskCategoryId]);
+
+  async function handleSubmitForm(event) {
     event.preventDefault();
+    setErrorMsg("");
 
-    // Validation input (au moins 5 char)
-    if (taskName.trim().length < 5) {
-      setErrorMsg("Le nom de la tâche doit faire au moins 5 caractères.");
-    } else {
-      setErrorMsg("");
-      const newTask = {
-        name: taskName.trim(),
-        category: taskCategory,
-        finished: false,
-      };
-      props.addTask(newTask);
-      setTaskName(""); // on reinitialise le nom de la tâche mais pas la catégorie
+    if (taskDescription.trim().length < 3) {
+      setErrorMsg("La tâche doit faire au moins 3 caractères");
+      return;
+    }
+
+    if (!taskCategoryId) {
+      setErrorMsg("Sélectionnez d'abord une catégorie");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      await onAddTask({
+        description: taskDescription.trim(),
+        category_id: Number(taskCategoryId),
+      });
+
+      setTaskDescription("");
+    } catch (error) {
+      if (error.status === 400 && error.data) {
+        if (error.data.description) {
+          setErrorMsg(error.data.description[0]);
+        } else if (error.data.category_id) {
+          setErrorMsg(error.data.category_id[0]);
+        } else {
+          setErrorMsg("Données invalides");
+        }
+      } else {
+        setErrorMsg("Impossible d'ajouter la tâche");
+      }
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -30,22 +59,33 @@ function TaskForm(props) {
       <form onSubmit={handleSubmitForm}>
         <input
           type="text"
-          value={taskName}
-          onChange={(event) => setTaskName(event.target.value)}
+          value={taskDescription}
+          onChange={(event) => setTaskDescription(event.target.value)}
           placeholder="Nouvelle tâche"
         />
+
         <select
-          value={taskCategory}
-          onChange={(event) => setTaskCategory(event.target.value)}
+          value={taskCategoryId}
+          onChange={(event) => setTaskCategoryId(event.target.value)}
         >
-          {props.categories.map((category, index) => (
-            <option key={index} value={category}>
-              {category}
+          {categories.length === 0 && (
+            <option value="">Aucune catégorie disponible</option>
+          )}
+
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
             </option>
           ))}
         </select>
-        <Button label="Ajouter" htmlType="submit" color="#388d38" />
+
+        <Button
+          label={loading ? "Ajout..." : "Ajouter"}
+          htmlType="submit"
+          color="#388d38"
+        />
       </form>
+
       {errorMsg && <Information message={errorMsg} type="warn" />}
     </>
   );

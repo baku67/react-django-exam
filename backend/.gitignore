@@ -1,0 +1,5 @@
+.venv
+db.sqlite3
+django_tp_basileKuntz/__pycache__/*
+project_manager/__pycache__/*
+project_manager/migrations/__pycache__/*

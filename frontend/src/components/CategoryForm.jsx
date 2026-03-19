@@ -2,19 +2,32 @@ import { useState } from "react";
 import Button from "./Button";
 import Information from "./Information";
 
-function CategoryForm(props) {
+function CategoryForm({ onAddCategory }) {
   const [inputValue, setInputValue] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmitForm(event) {
+  async function handleSubmitForm(event) {
     event.preventDefault();
+    setErrorMsg("");
 
-    // Validation input (au moins 3 char)
     if (inputValue.trim().length < 3) {
-      setErrorMsg("Le nom de la categorie doit faire au moins 3 caractères.");
-    } else {
-      props.addCategory(inputValue.trim());
-      setInputValue(""); // on reinitialise le nom de la categorie mais pas la catégorie
+      setErrorMsg("Le nom de la catégorie doit faire au moins 3 caractère");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await onAddCategory({ name: inputValue.trim() });
+      setInputValue("");
+    } catch (error) {
+      if (error.status === 400 && error.data?.name) {
+        setErrorMsg(error.data.name[0]);
+      } else {
+        setErrorMsg("Impossible de créer la catégorie");
+      }
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -27,8 +40,13 @@ function CategoryForm(props) {
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="Nouvelle catégorie"
         />
-        <Button label="Ajouter catégorie" color="#388d38" htmlType="submit" />
+        <Button
+          label={loading ? "Ajout..." : "Ajouter catégorie"}
+          color="#388d38"
+          htmlType="submit"
+        />
       </form>
+
       {errorMsg && <Information message={errorMsg} type="warn" />}
     </>
   );
