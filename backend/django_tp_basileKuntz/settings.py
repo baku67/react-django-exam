@@ -25,7 +25,11 @@ SECRET_KEY = 'django-insecure-wlfmkvm+k4*3p(2-t)hx=1%q$xh_+hsiu-eube2ejy-5nuuf$=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "react-django-exam-django-api.onrender.com",
+    "localhost",
+    "127.0.0.1",
+]
 
 
 # Application definition
@@ -56,6 +60,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173", # Si Vite
     #"http://localhost:3000", # si Create React App a été utilisé
+    "https://react-django-exam.vercel.app" # pour deploiiement frontend sur Vercel (à ajouter aussi sur le site Render)
 ]
 
 ROOT_URLCONF = 'django_tp_basileKuntz.urls'

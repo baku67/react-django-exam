@@ -17,3 +17,9 @@ python manage.py makemigrations
 python manage.py migrate
 
 python manage.py runserver
+
+
+
+# Deploiement
+Backend API sur Render (auth Github) avec variables d'environnements CORS dans paramètres sur le site
+Frontend React sur Vercel
