@@ -6,6 +6,7 @@ import TaskList from "./components/TaskList";
 import TaskForm from "./components/TaskForm";
 import FilterCategory from "./components/FilterCategory";
 import Information from "./components/Information";
+import ErrorButton from "./components/ErrorButton";
 import {
   fetchCategories,
   fetchTasks,
@@ -88,6 +89,10 @@ function App() {
       <Header title="Ma To-Do List par Catégories" />
 
       <main>
+        {/* Bouton de test Sentry Errors Monitoring:  */}
+        {/* Penser a desactiver l'AdBlocker */}
+        {/* <ErrorButton /> */}
+
         <FilterCategory
           categories={categories}
           selected={selectedCategoryFilter}

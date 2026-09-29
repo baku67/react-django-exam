@@ -21,8 +21,16 @@ from django.urls import path, include
 def health_check(request):
     return JsonResponse({"status": "ok"})
 
+
+def trigger_error(request):
+    """Deliberately raise an exception to verify the Sentry integration."""
+    return 1 / 0
+
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("health/", health_check, name="health-check"),
+    # Route de test erreur 500 pour Sentry
+    # path("sentry-debug/", trigger_error, name="sentry-debug"),
     path("api/", include("project_manager.urls")),
 ]
