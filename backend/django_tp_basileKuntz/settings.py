@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-wlfmkvm+k4*3p(2-t)hx=1%q$xh_+hsiu-eube2ejy-5nuuf$='
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "react-django-exam-django-api.onrender.com",
